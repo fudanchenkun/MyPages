@@ -1,0 +1,342 @@
+---
+layout: post
+title:  "Redis 学习笔记"
+date:   2019-05-30 02:15:56
+categories: jekyll update
+---
+
+
+>- CAP，跟base
+>- zookeeper满足了CAP的哪些特性，paxos
+>- redis的io模型
+>- 如果保证redis高可用
+>- 线上cpu占比过高怎么排查
+>- 一致性hash
+>- 事件轮询（多路复用还不够清楚）
+>- Redis的数据存储方式，操作方法，读写操作在底层都是如何实现。
+
+# Redis
+
+>- NoSql，非关系型数据库
+>- 存储
+>- 存在缓存
+
+# 存储结构
+
+
+##特点: 高效存储
+
+list push
+list是value的一种结构，插入类似于栈，先进后出，每次push都是添加到head，支持多值push
+如果对应key不存在，则新建一个空list
+
+从节点只负责备份
+
+##IO线程模型
+单线程
+
+###非阻塞IO
+读写IO的时候线程不会阻塞，可以做别的事情
+非阻塞IO在套接字对象上提供了一个Non_Blocking参数
+读取和写入都取决于内核为套接字分配的读写缓冲区的大小，并通过返回值
+多路复用，在Java中称为NIO
+非阻塞IO的情况下，解决通知线程何时来读数据的问题。
+通过select系统调用处理多个通道描述符的读写事件，称为多路复用API。
+现在用的是epoll（linux）和kqueue（FreeBSD和macosx）
+采用事件轮询的方式
+
+指令队列
+redis把每个客户端的套接字放到指令队列，先到先服务。
+响应队列
+将指令的返回结果返回给客户端。
+定时任务
+定时任务存储在最小堆上，对先要执行的事件放在最上方。
+
+通信协议 RESP Redis Serialization Protocol
+文本协议、实现简单、解析性能好
+
+
+
+服务端->客户端
+通过写协议传输、解析
+scan 0
+已游标方式遍历所有key，一次获取一部分。
+每次返回一个嵌套数组，第一元素是游标值（0则表示遍历结束），第二个元素是一个数组，保存了这次遍历的key
+
+##持久化
+###快照 
+全量备份 二进制序列化存储 很紧凑
+Redis使用操作系统的多进程COW（Copy On Write）机制实现
+redis内存里的数据一直在变化，如何保证进行快照？
+redis是单线程的，但做快照的时候需要fork出一个子进程。在父进程需要修改数据的时候，会调用cow机制分离出一段数据页面（大概4kB），而快照还是做原来那个页面的数据
+
+###AOF日志
+AOF日志修改操作的备份（先执行指令再存盘） 要重新执行 很耗时间的IO操作 过程非常慢 需要定期重写瘦身
+瘦身
+使用bgrewriteaof指令 原理：开一个子进程对内存遍历，转化成一系列Redis操作指令，序列化到一个新的AOF文件，再将期间发生的增量AOF日志追加到新的AOF日志文件，代替旧的AOF文件。
+fsync（Linux的glibc提供的）
+用于把内存缓存中的数据异步刷到磁盘，Redis通常每隔1s做一次。
+
+###文件描述符（大概就是句柄，fd）
+是内核维护的打开文件的标识的表，进程（包括fork出来的子进程、子例程）共享这些文件描述符。
+是一个非负整数，0代表stdin，1代表stdin，2代表stderr
+
+Redis主节点通常不进行持久化操作
+混合持久化
+把rdb文件的内容和增量的AOF文件放在一起进行
+
+##管道 PipeLine
+
+客户端改写了读写顺序，例如两次请求，客户端需要执行
+```
+write to send buffer
+read from recv buffer
+write to send buffer
+read from recv buffer
+```
+- 两次read都要等待网络传输完成
+- pipeline 就是改成了write->write->read->read 这样就等了一次网络传输的时间
+
+##事务
+Redis的事务不具备原子性，中间操作中断不能回滚，但还能继续执行下面的操作
+multi -> begin
+exec -> commit
+discard -> rollback
+watch
+当客户端进行并发时，需要分布式锁，但分布式锁是悲观锁，watch可以实现乐观锁。
+当某些关键变量发生变化时，加了watch的事务，redis-py会抛出错误WatchError，jedis则会返回一个null
+watch一定要放在multi之前
+
+问题：Redis事务不支持回滚，但数据库的回滚是如何操作的呢
+
+##PubSub（可以忽略）
+Redis的消息队列不支持多播，但可以使用PubSub（PublicSubscribe）模块来实现多播
+生产者代码
+```python
+client = redis.StrictRedis()
+client.publish("codehole", "python comes")
+client.publish("codehole", "java comes")
+```
+
+
+###阻塞消费者代码
+```python
+client = redis.StrictRedis()
+p = client.pubsub()
+p.subscribe("codehole")
+for msg in p.listen():
+    print msg
+```
+- 缺点
+   - 生产者发布一个消息，redis直接找消费者消费。没有消费者，那么发布的消息就会被丢弃
+   - 不能持久化，一旦宕机，消息直接被丢弃。
+
+###ziplist（小对象压缩存储）
+- 如果存储的是hash结构，key和value作为两个相邻的entry存储
+- 如果存储的是zset结构，value和score作为两个相邻的entry存储，元素个数超过阈值，就会动态扩充。
+
+###内存回收机制
+清除部分key并不会明显减少内存，而操作系统是按照页来回收内存的，redis的key往往是分散在各个页上的。
+flushdb会清除所有key。
+redis的内存分配直接使用jemalloc或者tcmalloc
+
+##集群
+###主从同步
+Consistent 一致性
+Availability 可用性
+Partition tolerance 分区容错性
+CAP原理：当网络分区发生时，一致性和可用性不能两全
+分布式Redis的主从数据是异步同步的，不满足一致性，但满足可用性、最终一致性。
+增量同步
+Redis同步是指令流，把修改的指令保存在本地的buffer，这个buffer是一个环形数组，新的指令会覆盖旧的指令。主节点异步地把buffer里的指令同步到从节点。
+快照同步
+当网络不好时，主节点的部分指令流被覆盖，无法同步到从节点，就需要快照同步。
+快照同步主节点先把数据快照到磁盘，再一次性把快照的内容同步到从节点，从节点要清空内存数据、进行一次全量加载，再把这过程中的新的操作通过增量同步从过来。
+如果期间快照同步过长，增量同步的buffer有被覆盖的情况，那么只能重试快照同步，这样有可能就陷入死循环。优化方法是增大buffer参数。
+
+
+
+无盘复制指的是直接通过套接字将快照内容发送到从节点（从节点还是先存盘再同步），主节点一边遍历内存一边把数据序列化发送到从节点。
+Redis的复制是异步的，wait指令可以将异步复制变为同步复制，就是等待所有从节点都复制完成再恢复可用性。
+
+Sentinel
+如果主节点宕机，那么主从复制则没有意义。Sentinel负责监控主从节点的健康，当主节点挂了，自动选择最优节点成为主节点。
+Redis Sentinel集群可以看成是一个zk集群，个别节点挂了，集群还可以正常运转。
+客户端连接集群时，会首先连接Sentinel，通过Sentinel来获取主节点地址，如果主节点挂了，Sentinel会告诉客户端新的主节点地址。
+当宕机的旧主节点恢复时，会自动变成从节点，和新的主节点完成主从复制。
+消息丢失
+Redis主从复制是异步的，当主节点宕机，从节点没有完成主从复制的全部内容，那么Sentinel也无法保证消息不完全丢失。
+这时需要保证主从复制的延迟，可以通过两个参数限制：
+min-slaves-to-write 1  -- 至少保证一个从节点是正常复制的
+min-slaves-max-lag 10 -- 10s收到主节点的反馈就是规定的正常复制
+Sentinel使用
+from redis.sentinel import Sentinel
+sentinel = Sentinel([('localhost', 26379)], socket_timeout=0.1)
+sentinel.discover_master('mymaster')
+sentinel.discover_slaves('myslaves')
+客户端如何知道主节点变化了？
+一种情况，主节点挂了，当建立新连接时，Sentinel检查的主节点地址的和内存中主节点地址是否一致，如果不一致，断开连接，客户端重连时，Sentinel用新地址建立连接。
+另一种情况，主节点没挂，客户端还正产地连着，Sentinel会捕获ReadOnlyError异常，断开连接，让客户端重连。
+
+Codis
+
+
+
+codis是一个转发代理中间件，可以有多个实例
+分片原理
+key (crc32) -> hash值 (1024取模) -> solt
+代码
+hash = crc32(command key)
+slot_index = hash % 1024
+redis = slots[slot_index].redis
+redis.do(command)
+slot和redis的映射表存在zk，并通过Dashboard监控
+扩容迁移
+当增加一个redis实例时，需要把部分的slot指向新的redis
+通过slotsscan来遍历每个redis实例里面的key，然后迁移数据，迁移过程中，该槽位的数据同时存在于新旧两个redis里面
+当codis收到槽位迁移的key时，强制对当前key迁移，完成后再将请求转移到新的redis实例
+自动均衡
+codis会检测每个redis对应的槽位数量，不均衡的话就自动迁移。
+
+不足
+不支持事务 key分散在不同redis实例 不能rename也是这个原因
+增加了代理 增加了网络开销
+为了支持扩容 单个key/value不宜过大 否则迁移出现卡顿
+使用了zk 增加运维开销
+
+Redis Cluster
+原理
+去中心化，不需要额外的分布式存储空间管理，slot和redis实例的关系。
+当client来连接时，会直接得到一份集群的槽位配置信息，可以直接定位，不需要proxy。
+每个节点将将集群的配置信息都持久化到配置文件中。
+槽位定位算法
+crc16 取模16384
+也可以强制把key挂到特定的槽位上（只要在key字符串里面嵌入tag标记）
+跳转
+当客户端像一个redis发送了一个错误的get请求 redis返回错误并告诉客户端到哪个节点去获取数据
+迁移
+迁移是个同步过程，源节点的主线程会处于阻塞状态，直到迁移到目标节点，再执行删除操作
+容错
+Redis Cluster可以为每个主节点分配几个从节点，当主节点宕机，从节点会成为主节点。
+当该主节点没有从节点时，集群处于不可用状态。设置cluster-require-full-coverage可以允许部分节点宕机，其他节点继续提供服务。
+确定节点失联
+当一个节点发现另一个节点失联是，会向集群广播，只有当大多数节点认为这个节点失联时，才会进行主从切换。
+槽位感知
+MOVED 指令发送到了错误节点，节点会返回错误告知客户端重试到另一个节点去取数据
+ASKING 当槽位在迁移的时候，指令首先会发送到旧节点，没有的话会让客户端重试到新节点拿数据
+可能会存在多次转移重试的情况 可以设置参数设置最大的重试次数
+集群变更感知
+两种情况
+1、目标节点挂了（连不上），槽位被迁移了，客户端抛出ConnectionError，随机重连一个节点，该节点会用MOVE指令告诉客户端到别的节点拿。
+2、运维手动修改了集群信息（能连上，但不属于集群了），主从关系修改，主节点被移除，客户端会收到ClusterDown错误，客户端会关闭所有连接，向上抛出错误，清空槽位关系映射表，等待下条指令来的重新初始化节点信息。
+
+分布式锁
+设置锁
+setnx lock:codehole true
+设置锁超时
+expire lock:codehole 5
+释放锁
+del lock:codehole
+分布式锁 把设置锁和设置超时变成一个原子操作
+set lock:codehole true ex 5 nx
+
+重入锁？                                                  
+Redlock算法
+如果在一个节点加了一把锁，此时该节点宕机，锁还来不及复制到从节点，此时锁无效。
+Redlock才用“大多数机制”，加锁时，向过半的节点发送set（key,value,nx=True,ex=xxx）指令，只要过半节点set成功，就认为锁加载成功。释放锁时，也要向所有节点发送del指令
+
+ 过期策略
+Redis所有的数据结构都可以设置过期时间
+Redis会将所有设置了过期时间的key放入到一个独立的字典中，可以有两只删除扫描策略
+1、定期扫描独立字典删除，默认每秒10次
+2、惰性策略，当使用到key时检测是否过期
+为了防止key在同一时间删除放生卡顿，要在过期时间上加一个随机时间。
+从节点过期删除
+从节点是不会进行过期检查的，主节点会在key过期时，在AOF文件上加一条del指令，同步到每个从节点，从节点执行这个del指令删除过期的key
+
+LRU（Least Recently Used）- 淘汰key 
+为了保证内存不超过阈值要删除一些长时间不用的key
+淘汰策略
+volatile-xxx针对设置过期时间的key
+allkeys-xxx针对所有key
+LRU算法
+使用了双向链表+字典
+被使用过的元素被移动到队首，在删除队尾的元素。
+Java实现
+所有元素放置到一个HashMap，每个元素的entry中设置了pre、next指针（entry同时也保存了key、value），形成了hashmap中形成了一个双向链表。
+近似LRU算法
+给每个key增加一个额外的24bit的字段，记录最后一次被访问的时间
+当redis执行写操作时，发现maxmemory大于阈值，随机抽出5个key，淘汰其中最早的。
+Redis3.0加入了淘汰池，把新随机抽出的5个和淘汰池合并，淘汰最早的，然后把剩余较早的保留在淘汰池。
+惰性删除
+redis会有几个异步线程来进行惰性删除
+unlink key 把key丢给异步线程回收
+flushall async 清空操作丢给一个异步线程
+这些操作会包装成成任务，放到一个线程安全的异步队列，后台线程会执行这些任务
+AOF Sync 起的是另一个异步线程 同步AOF日志到磁盘
+
+Jedis使用
+Jedis对象是线程不安全的，要用JedisPool，取出一个Jedis后再返回给线程池。
+
+Redis安全
+重命名指令
+rename-command keys abckeyabc 重命名
+rename-command flushall ""  禁止该命令
+端口安全
+配置端口号 否则按照默认的6379可以探测出ip
+Lua脚本安全
+禁止Lua脚本由用户输入的内容生成
+SSL代理
+使用SSL代理，常用的ssh，官方推荐spiped
+spiped
+原理：在客户端和服务端各起一个进程，两端通过加密反解来传递消息。
+
+
+启动命令
+chkconfig redis on
+#打开服务
+service redis start
+#关闭服务
+service redis stop
+
+HyerLogLog
+可以不精确地统计uv，误差不超过1%。
+
+基础数据结构
+string
+内部是一个字符数组
+每个字符8个bit
+作为value，可以把信息结构体使用json序列化成字符串，读的时候会反序列化出来
+动态字符串，类似于ArrayList，当字符串小于1M时，会double；大于1M时，会多扩1M，但最大为512M
+命令：
+set、get
+批量set mset name1 v1 name2 v2
+批量get mget name1 name2
+过期
+expire  name 5
+setex name 5 v
+setnx name v // 不存在就set；存在则不set
+计数
+set、incr、incrby
+set age 30
+incr age
+incrby age 5
+位图
+setbit s 1 1
+getbit w 1
+bitcount w start end // start和end 都是字符数组
+一次进行多个位图操作（也可以用管道）
+bitfield w get u4 0 // 从第0位开始取4位 返回一个无符号数
+bitfield w get i3 2// 从第2位开始取3位 返回一个有符号数
+（有符号数最多取64位，无符号数最多取63位）
+执行多个子指令
+bitfield w get u4 0 get u3 2
+设置
+bitfield w set u8 8 97 // 从第8位开始用无符号数97换8个bit
+自增
+bitfield w incrby u4 2 1 // 从第2位开始对下面的无符号4位数 加 1
+溢出overflow
+bitfield w overflow sat incrby u4 2 1
+wrap折返（默认）将溢出的符号位丢掉
+stat 超出范围则停留在最大或最小值
+fail 报错不执行
