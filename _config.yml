@@ -1,1 +1,22 @@
-theme: jekyll-theme-architect
+# main text of home
+name: Jane Doe
+bio: A Girl who travels the world eating noodles
+
+# twitter summary info
+description: A blog about technology and stuff related
+
+picture: assets/images/picture.jpg
+
+url: http://koppl.in/violet
+# your url: http://USERNAME.github.io
+
+# if you don't have any of social below, comment the line
+facebook: myfacebook
+twitter: mytwitter
+github: mygithub
+email: me@jane.doe
+
+gems:
+  - jekyll-seo-tag
+
+exclude: [README.md, Gemfile, Gemfile.lock, _site, Rakefile, travis.sh, vendor]
