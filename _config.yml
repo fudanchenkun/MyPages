@@ -1,22 +1,26 @@
-# main text of home
-name: Jane Doe
-bio: A Girl who travels the world eating noodles
+# Site settings
+name: Less Or More
+email: luoyan35714@126.com
+author: Freud Kang
+url: http://www.hifreud.com
+resume_site: http://www.hifreud.com/Resume.io/
+github: https://github.com/luoyan35714/
+baseurl: "/LessOrMore"
+description: Actually, less is more!
+meta_description: 康志华;个人博客;学而不思则罔;思而不学则殆;生命不止;折腾不休
+motto: It's our wits that make us men.
+banner: 学而不思则罔，思而不学则殆。
 
-# twitter summary info
-description: A blog about technology and stuff related
+#permalink: /:categories/:year/:month/:day/:title/
+permalink: /:year/:month/:day/:title/
+paginate: 10
 
-picture: assets/images/picture.jpg
+exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'Rakefile']
 
-url: http://koppl.in/violet
-# your url: http://USERNAME.github.io
+github_username: luoyan35714
 
-# if you don't have any of social below, comment the line
-facebook: myfacebook
-twitter: mytwitter
-github: mygithub
-email: me@jane.doe
+# Build settings
+markdown: kramdown
 
-gems:
-  - jekyll-seo-tag
+baidu_analysis: 94be4b0f9fc5d94cc0d0415ea6761ae9
 
-exclude: [README.md, Gemfile, Gemfile.lock, _site, Rakefile, travis.sh, vendor]
