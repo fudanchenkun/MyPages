@@ -1,102 +1,92 @@
-# LessOrMore
+# Architect theme
 
+This is a [Jekyll][1] theme that is an adaptation of [@jasonlong][2]'s [Architect theme][4] on [GitHub Pages][3].
 
-致谢
-====================================
-+ 感谢[Less官网](http://lesscss.cn/)的样式，本Jekyll框架的样式都是基于Less官网的样式直接拷贝过来的。只是重构了JS，并且加入了Jekyll语法而已。
-+ 感谢[Github](https://github.com/)提供的代码维护和发布平台
-+ 感谢[Jekyll](https://jekyllrb.com/)团队做出如此优秀的产品
-+ 感谢[Solar](https://github.com/mattvh/solar-theme-jekyll)的原作者[Matt Harzewski](http://www.webmaster-source.com/)，在`2014.11`-`2016.09`的两年间，我的博客选用了此样式模版
+This is the raw HTML and styles that are used for the *Architect* theme on [GitHub Pages](https://pages.github.com/).
 
+![](https://cl.ly/image/1x0Q3213330G/content)
 
-使用
-====================================
+# Getting Started
 
-下载
-------------------------------------
+## Prerequisites
 
-使用git从[LessOrMore](https://github.com/luoyan35714/LessOrMore.git)主页下载项目
+To install this theme, jekyll is required to be installed on your system. Head over to the [docs](https://jekyllrb.com/docs/installation/) and install the four requirements (Ruby, RubyGems, Node.js and Python 2.7). If you're on a Mac system, it's likely the only package you'll need to install is Node.js
 
-``` bash
-git clone https://github.com/luoyan35714/LessOrMore.git
+Once you've installed the requirements, run this command in your terminal:
+
+```
+$ sudo gem install jekyll
 ```
 
-配置
-------------------------------------
+You'll also need to install the bundler package:
 
-`LessOrMore`项目需要配置的只有一个文件`_config.yml`，打开之后按照如下进行配置。
-
-> 特别注意`baseurl`的配置。如果是`***.github.io`项目，不修改为空''的话，会导致JS,CSS等静态资源无法找到的错误
-
-``` bash
-name: 博客名称
-email: 邮箱地址
-author: 作者名
-url: 个人网站
-# baseurl修改为项目名，如果项目是'***.github.io'，则设置为空''
-baseurl: "/LessOrMore"
-resume_site: 个人简历网站
-github: github地址
-github_username: github用户名称
-# 请到百度统计官网[https://tongji.baidu.com/](https://tongji.baidu.com/)申请自己的网站ID并在此处替换，否则将无法正常统计访问量
-baidu_analysis: 94be4b0f9fc5d94cc0d0415ea6761ae9
-# 请到revolvermaps [http://www.revolvermaps.com/?target=setupgl](http://www.revolvermaps.com/?target=setupgl)申请自己的网站ID并在此处替换，否则将无法正常统计访问量
-revolvermaps: 5ytn1ssq6za
+```
+$ sudo gem install bundler
 ```
 
-关于统计
-------------------------------------
+## Downloading and Installing the theme
 
-本项目支持三种统计，分别是
+Download the theme
 
-+ [百度统计](https://tongji.baidu.com)
-
-百度统计是后台统计，并没有再页面有任何展示，但是可以通过登录百度统计官网查看更详细的访问记录分析。
-当Fork本项目之后需要去百度统计官网申请自己的baidu统计ID替换 `_config.yml` 文件中的 `baidu_analysis`。
-
-+ [revolvermaps地图统计](http://www.revolvermaps.com/)
-
-revolvermaps地图统计是展示在左侧当行栏的地图展示，具体展示形式可以去官网定制。
-当Fork本项目之后需要去revolvermaps地图官网申请自己的统计ID， 替换`_config.yml` 文件中的 `revolvermaps`。
-
-+ [不蒜子统计](http://busuanzi.ibruce.info/)
-
-不蒜子统计是出现在页面右上角的`本站总访问量n次`统计，本统计会自动识别客户所对应的域名，根据不同域名统计，所以并不需要Fork本项目者做任何修改。
-更多不蒜子的展示方式可以去官网查看。
-
-
-如何写文章
-------------------------------------
-
-在`LessOrMore/_posts`目录下新建一个文件，可以创建文件夹并在文件夹中添加文件，方便维护。在新建文件中粘贴如下信息，并修改以下的`titile`,`date`,`categories`,`tag`的相关信息，添加`* content {:toc}`为目录相关信息，在进行正文书写前需要在目录和正文之间输入至少2行空行。然后按照正常的Markdown语法书写正文。
-
-``` bash
----
-layout: post
-#标题配置
-title:  标题
-#时间配置
-date:   2016-08-27 01:08:00 +0800
-#大类配置
-categories: document
-#小类配置
-tag: 教程
----
-
-* content
-{:toc}
-
-
-我是正文。我是正文。我是正文。我是正文。我是正文。我是正文。
+```
+https://github.com/pietromenna/jekyll-architect-theme/archive/master.zip
 ```
 
-执行
-------------------------------------
+Unzip it and use it as a regular jekyll folder.
 
-``` bash
-jekyll server
+```
+$ unzip jekyll-architect-theme-master.zip
 ```
 
-效果
-------------------------------------
-打开浏览器并输入URL`http://localhost:4000/`,回车。
+Get inside the newly extracted folder
+
+```
+$ cd jekyll-architect-theme-master
+```
+
+Install the dependencies
+
+```
+$ bundle install
+```
+
+Use it!
+
+```
+$ jekyll serve
+```
+
+# Setup
+
+Some important configuration can be done in the file `_config.yml`. Please, check the Setup section in that file.
+
+
+## baseurl
+
+`baseurl` parameter is required in the case the site doesn't sit on the root of the domain. For example: https://pietromenna.github.io/jekyll-architect-theme
+
+In the case above the baseurl should be set to "/jekyll-architect-theme".
+
+In the case the site sits in the root, you can leave `baseurl` as empty "".
+
+
+For more details read about [Jekyll][1] on its web page.
+
+# Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/pietromenna/jekyll-architect-theme.
+
+# Development
+
+To set up your environment to develop this theme, run `bundle install`.
+
+You theme is setup just like a normal Jelyll site! To test your theme, run `bundle exec jekyll serve` and open your browser at `http://localhost:4000`. This starts a Jekyll server using your theme. Add pages, documents, data, etc. like normal to test your theme's contents. As you make modifications to your theme and to your content, your site will regenerate and you should see the changes in the browser after a refresh, just like normal.
+
+# License
+
+This work is licensed under a [Creative Commons Attribution 4.0 International](http://creativecommons.org/licenses/by/4.0/).
+
+[1]: https://jekyllrb.com
+[2]: https://github.com/jasonlong
+[3]: http://pages.github.com/
+[4]: https://github.com/jasonlong/architect-theme
