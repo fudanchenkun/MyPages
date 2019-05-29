@@ -10,3 +10,6 @@ gems:
 
 #Others
 markdown: kramdown
+
+url: https://fudanchenkun.github.io
+root: MyPages
