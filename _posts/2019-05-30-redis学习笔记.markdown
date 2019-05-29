@@ -32,10 +32,10 @@ list是value的一种结构，插入类似于栈，先进后出，每次push都�
 
 从节点只负责备份
 
-##IO线程模型
+## IO线程模型
 单线程
 
-###非阻塞IO
+###  非阻塞IO
 读写IO的时候线程不会阻塞，可以做别的事情
 非阻塞IO在套接字对象上提供了一个Non_Blocking参数
 读取和写入都取决于内核为套接字分配的读写缓冲区的大小，并通过返回值
@@ -63,21 +63,21 @@ scan 0
 已游标方式遍历所有key，一次获取一部分。
 每次返回一个嵌套数组，第一元素是游标值（0则表示遍历结束），第二个元素是一个数组，保存了这次遍历的key
 
-##持久化
-###快照 
+## 持久化
+### 快照 
 全量备份 二进制序列化存储 很紧凑
 Redis使用操作系统的多进程COW（Copy On Write）机制实现
 redis内存里的数据一直在变化，如何保证进行快照？
 redis是单线程的，但做快照的时候需要fork出一个子进程。在父进程需要修改数据的时候，会调用cow机制分离出一段数据页面（大概4kB），而快照还是做原来那个页面的数据
 
-###AOF日志
+### AOF日志
 AOF日志修改操作的备份（先执行指令再存盘） 要重新执行 很耗时间的IO操作 过程非常慢 需要定期重写瘦身
 瘦身
 使用bgrewriteaof指令 原理：开一个子进程对内存遍历，转化成一系列Redis操作指令，序列化到一个新的AOF文件，再将期间发生的增量AOF日志追加到新的AOF日志文件，代替旧的AOF文件。
 fsync（Linux的glibc提供的）
 用于把内存缓存中的数据异步刷到磁盘，Redis通常每隔1s做一次。
 
-###文件描述符（大概就是句柄，fd）
+### 文件描述符（大概就是句柄，fd）
 是内核维护的打开文件的标识的表，进程（包括fork出来的子进程、子例程）共享这些文件描述符。
 是一个非负整数，0代表stdin，1代表stdin，2代表stderr
 
@@ -85,7 +85,7 @@ Redis主节点通常不进行持久化操作
 混合持久化
 把rdb文件的内容和增量的AOF文件放在一起进行
 
-##管道 PipeLine
+## 管道 PipeLine
 
 客户端改写了读写顺序，例如两次请求，客户端需要执行
 ```
@@ -97,7 +97,7 @@ read from recv buffer
 - 两次read都要等待网络传输完成
 - pipeline 就是改成了write->write->read->read 这样就等了一次网络传输的时间
 
-##事务
+## 事务
 Redis的事务不具备原子性，中间操作中断不能回滚，但还能继续执行下面的操作
 multi -> begin
 exec -> commit
@@ -109,7 +109,7 @@ watch一定要放在multi之前
 
 问题：Redis事务不支持回滚，但数据库的回滚是如何操作的呢
 
-##PubSub（可以忽略）
+## PubSub（可以忽略）
 Redis的消息队列不支持多播，但可以使用PubSub（PublicSubscribe）模块来实现多播
 生产者代码
 ```python
@@ -119,7 +119,7 @@ client.publish("codehole", "java comes")
 ```
 
 
-###阻塞消费者代码
+### 阻塞消费者代码
 ```python
 client = redis.StrictRedis()
 p = client.pubsub()
@@ -131,17 +131,17 @@ for msg in p.listen():
    - 生产者发布一个消息，redis直接找消费者消费。没有消费者，那么发布的消息就会被丢弃
    - 不能持久化，一旦宕机，消息直接被丢弃。
 
-###ziplist（小对象压缩存储）
+### ziplist（小对象压缩存储）
 - 如果存储的是hash结构，key和value作为两个相邻的entry存储
 - 如果存储的是zset结构，value和score作为两个相邻的entry存储，元素个数超过阈值，就会动态扩充。
 
-###内存回收机制
+### 内存回收机制
 清除部分key并不会明显减少内存，而操作系统是按照页来回收内存的，redis的key往往是分散在各个页上的。
 flushdb会清除所有key。
 redis的内存分配直接使用jemalloc或者tcmalloc
 
-##集群
-###主从同步
+## 集群
+### 主从同步
 Consistent 一致性
 Availability 可用性
 Partition tolerance 分区容错性
