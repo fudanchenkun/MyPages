@@ -100,7 +100,8 @@ read from recv buffer
 write to send buffer
 read from recv buffer
 ```
-![redis-pipeline](../images/redis_pipeline.jpg)
+
+<a href="images/redis_pipeline.jpg">redis-pipeline</a>
 
 - 两次read都要等待网络传输完成
 - pipeline 就是改成了write->write->read->read 这样就等了一次网络传输的时间
