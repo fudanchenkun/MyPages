@@ -12,7 +12,8 @@ class Solution(object):
         :rtype: ListNode
         """
         def hasKSteps(p):
-            p =
+            if p is None:
+                return False
             c = 1
             while c < k:
                 p = p.next
@@ -21,38 +22,30 @@ class Solution(object):
                     return False
             return True
 
-        def reverse(pre, head):
+        def reverse(head):
             c = 1
-            p = head.next
+            nh = head.next
             head.next = None
-            np = head
-            while c < k and p:
-                tmp = p
-                p = p.next
-
+            end = head
+            while c < k:
+                tmp = nh
+                nh = nh.next
                 tmp.next = head
                 head = tmp
-                p = p.next
                 c += 1
-            if pre:
-                pre.next = head
-            return p
+            return head, end, nh
 
+        if k <= 1:
+            return head
         if not hasKSteps(head):
             return head
-        end = reverse(None, head)
-        while end.next:
-            end = reverse(end, )
-        c = 1
-        p = head.next
-        head.next = None
-        np = head
-        while c < k and p:
-            tmp = p
-            p = p.next
+        head, end, nh = reverse(head)
+        while True:
+            if not hasKSteps(nh):
+                end.next = nh
+                break
 
-            tmp.next = head
-            head = tmp
-            p = p.next
-            c += 1
+            part_head, part_end, nh = reverse(nh)
+            end.next = part_head
+            end = part_end
         return head
