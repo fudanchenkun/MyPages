@@ -350,14 +350,15 @@ HyerLogLog
 命令：
 ```python
 #set、get
-批量set mset name1 v1 name2 v2
-批量get mget name1 name2
+#批量
+set mset name1 v1 name2 v2
+get mget name1 name2
 # 过期
 expire  name 5
 setex name 5 v
 setnx name v # 不存在就set；存在则不set
 # 计数
-set、incr、incrby
+set, incr, incrby
 set age 30
 incr age
 incrby age 5
@@ -368,7 +369,7 @@ bitcount w start end # start和end 都是字符数组
 # 一次进行多个位图操作（也可以用管道）
 bitfield w get u4 0 # 从第0位开始取4位 返回一个无符号数
 bitfield w get i3 2 # 从第2位开始取3位 返回一个有符号数
-（有符号数最多取64位，无符号数最多取63位）
+#（有符号数最多取64位，无符号数最多取63位）
 #执行多个子指令
 bitfield w get u4 0 get u3 2
 #设置
@@ -377,7 +378,7 @@ bitfield w set u8 8 97 # 从第8位开始用无符号数97换8个bit
 bitfield w incrby u4 2 1 # 从第2位开始对下面的无符号4位数 加 1
 #溢出overflow
 bitfield w overflow sat incrby u4 2 1
-wrap折返（默认）将溢出的符号位丢掉
-stat 超出范围则停留在最大或最小值
-fail 报错不执行
+wrap #折返（默认）将溢出的符号位丢掉
+stat #超出范围则停留在最大或最小值
+fail #报错不执行
 ```
