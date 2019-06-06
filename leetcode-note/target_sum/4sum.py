@@ -12,10 +12,10 @@ class Solution(object):
         if len(nums) == 4:
             return [nums] if sum(nums) == target else []
         triplets=[]
-        while c < nums_len - 3 and nums[c] <= target:
+        while c < nums_len - 3:
             i = c + 1
             target_3 = target - nums[c]
-            while i < nums_len - 2 and nums[i] <= target_3:
+            while i < nums_len - 2:
                 left = i + 1
                 right = nums_len - 1
                 while left < right:
@@ -37,7 +37,7 @@ class Solution(object):
                 while i < nums_len and nums[i-1] == nums[i]:
                     i += 1
             c += 1
-            # while c < nums_len and nums[c-1] == nums[c]:
-            #     c += 1
+            while c < nums_len and nums[c-1] == nums[c]:
+                c += 1
 
         return triplets

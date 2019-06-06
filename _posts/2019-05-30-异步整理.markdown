@@ -1,0 +1,98 @@
+---
+layout: post
+title:  "异步整理"
+date:   2019-05-31 00:32:56
+categories: jekyll update
+---
+
+
+# **异步**
+
+> 多路复用
+编程语言
+python3的协程 asychronus
+java的NIO
+框架 
+tornado 事件轮询
+netty
+redis 单线程io
+异步
+
+
+## why 异步？
+- 移动互联网系统的复杂度快速上升->业务快速迭代->采用微服务架构
+- 传统后台服务采用同步阻塞调用，每个请求都占用一个线程，在多个微服务架构中就会出现多个线程
+因此很多公司采用全栈异步。
+
+# python3
+>- python3的异步是通过await和yield语句实现
+>- coroutine协程可以转化成await和yield，可以把复杂的逻辑像写多线程一样。
+>- coroutine 分为 await-based 和 yield-based
+
+## async运行
+>- asyncio.run(main())
+>- task=asyncio.create_task() asyncio.run(task) 异步执行
+
+## 三类主要的awaitable objects
+- Coroutines
+   >- a coroutine function: an async def function;
+   >- a coroutine object: an object returned by calling a coroutine function.
+如果没有await 那么异步函数不会执行
+
+- Task
+> 被包装在一些如asyncio.create_task() 之类函数里面的协程，会被自动放在执行计划中。
+
+- Futures
+>await一个future就需要等待它执行完毕。一般来说，应用级别的代码用不到future
+
+## 一般步骤
+```python
+async def do_some_work(x):
+    print('Waiting: ', x)
+# async定义一个异步函数
+coroutine = do_some_work(2) # 创建协程对象
+loop = asyncio.get_event_loop() # 创建一个协程事件
+loop.run_until_complete(coroutine) # 把协程注册到事件循环并启动事件循环
+```
+
+## 绑定回调
+### 异步函数
+```python
+async def do_some_work(x):
+    print('Waiting: ', x)
+    return 'Done after {}s'.format(x)
+```
+### 回调函数
+```python
+def callback(future): 
+    print('Callback: ', future.result())
+
+coroutine = do_some_work(2) 
+loop = asyncio.get_event_loop()
+task = asyncio.ensure_future(coroutine) # 创建一个task，create_task也可以创建一个task
+task.add_done_callback(callback) # 绑定回调函数
+loop.run_until_complete(task) # 
+```
+
+## tornado
+>- Decorated coroutines always return a Future object. 
+>- Native coroutines return an awaitable object that is not a Future.
+
+- coroutine发生Exception会在awaitable对象里被捕获，不会报出来，因此要格外注意
+- 调用异步函数的函数自己本身也要是异步函数，要使用到await和yield语句
+- IOLoop.spawn_callback会把报错的coroutine再log里面记录
+- 使用IOLoop.spawn_callback，建议使用@gen.coroutine，也需要使用async def
+
+### 更准确地休眠一分钟
+```python
+async def minute_loop():
+    while True:
+        await do_something()
+        await gen.sleep(60)
+
+async def minute_loop2():
+    while True:
+        nxt = gen.sleep(60)   # Start the clock.
+        await do_something()  # Run while the clock is ticking.
+        await nxt             # Wait for the timer to run out.
+```
