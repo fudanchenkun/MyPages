@@ -152,9 +152,12 @@ flushdb会清除所有key。
 redis的内存分配直接使用jemalloc或者tcmalloc
 
 ## 集群
+
 ### 主从同步
 
 #### CAP原理
+
+
 > 当网络分区发生时，一致性和可用性不能两全
 >- Consistent 一致性
 >- Availability 可用性
@@ -201,8 +204,10 @@ sentinel.discover_slaves('myslaves')
 ## Codis
 
 >codis是一个转发代理中间件，可以有多个实例
+
 ### 分片原理
 > key (crc32) -> hash值 (1024取模) -> solt
+
 代码
 ```python
 hash = crc32(command key)
@@ -225,10 +230,12 @@ codis会检测每个redis对应的槽位数量，不均衡的话就自动迁移�
 >- 使用了zk 增加运维开销
 
 ## Redis Cluster
+
 原理
 >- 去中心化，不需要额外的分布式存储空间管理，slot和redis实例的关系。
 >- 当client来连接时，会直接得到一份集群的槽位配置信息，可以直接定位，不需要proxy。
 >- 每个节点将将集群的配置信息都持久化到配置文件中。
+
 ### 槽位定位算法
 - crc16 取模16384
 - 也可以强制把key挂到特定的槽位上（只要在key字符串里面嵌入tag标记）
@@ -263,6 +270,7 @@ set lock:codehole true ex 5 nx
 ```
 
 > 重入锁？                                                  
+
 
 Redlock算法
    - 如果在一个节点加了一把锁，此时该节点宕机，锁还来不及复制到从节点，此时锁无效。
