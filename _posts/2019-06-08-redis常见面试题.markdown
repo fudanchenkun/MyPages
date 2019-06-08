@@ -5,7 +5,7 @@
 2. 分布式缓存则可以处理好这两个问题。
 
 ### 问题：分布式缓存选择redis而不是memcached
-1. redis支持多种k/v的结构，如liet、set等等，而memcached支持string
+1. redis支持多种k/v的结构，如list、set等等，而memcached只支持string
 2. redis支持持久化，通过AOF或者RDB持久化到磁盘。
 
 ### redis的过期策略和淘汰算法
