@@ -4,19 +4,3 @@ layout: default
 <h2>{{ page.title }}</h2>
 <p class="meta">{{ page.date | date_to_string }}</p>
 {{ content }}
-<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
-<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
-<div id="gitalk-container"></div>     <script type="text/javascript">
-    var gitalk = new Gitalk({
-
-        // gitalk的主要参数
-        clientID: '3f978953933516dd8660',
-        clientSecret: '8ed45126f913bcdd8de020e5ec83909edb8d3cf6',
-        repo: 'MyPages',
-        owner: 'fudanchenkun',
-        admin: ['fudanchenkun'],
-        id: 'window.location.pathname',
-
-    });
-    gitalk.render('gitalk-container');
-</script>
