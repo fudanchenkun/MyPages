@@ -16,8 +16,8 @@ layout: default
         repo: 'MyPages',
         owner: 'fudanchenkun',
         admin: ['fudanchenkun'],
-        id: location.hash.match(/#(.*?)([?]|$)/)[1],
-
+        id: location.pathname,
     });
+    alert(location.pathname)
     gitalk.render('gitalk-container');
 </script>
