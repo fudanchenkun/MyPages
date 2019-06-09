@@ -1,12 +1,11 @@
-# 2019-06-09-lru实现
 
 - 在整理redis笔记和刷leetcode的时候都遇到了LRU（Least Recently Used）算法，就把它的实现整理了一下。
-- 这个算法貌似可以用在很多地方，除了redis的过期策略，百度了下内存管理中的页面置换算法和缓存方面也有应用。
+- 这个算法貌似可以用在很多地方，除了redis的过期策略，内存管理中的页面置换算法和缓存方面也有应用。
 
 ## 思路
 
-算法的目的就是淘汰做不常使用的数据（或者什么的吧），主要思路就是双向列表+字典：
-- 双向列表记录每个数据项使用顺序，最新添加的（put方法）和最新获取的（get方法）否放在表头，表尾就是最不常使用的数据项。
+算法的目的就是淘汰最不常使用的数据（或者什么的吧），主要思路就是双向列表+字典：
+- 双向列表记录每个数据项使用顺序，最新添加的（put方法）和最新获取的（get方法）都要放在表头，表尾就是最不常使用的数据项。
 - 字典的作用就是在o(1)的复杂度下获取数据 
 - 还要有个capacity用于限制数据量的大小
 
@@ -129,11 +128,8 @@ class LRUCache(object):
         """
         if key in self.items:
             node = self.items[key]
-            # print 'get', key
             self.updateLinkedList(node)
             return self.head.value
-        # self.printLinkedList()
-        # print self.items.keys()
         return -1
 
     def put(self, key, value):
@@ -142,7 +138,6 @@ class LRUCache(object):
         :type value: int
         :rtype: None
         """
-        # print 'put', key, value
         if key in self.items:
             node = self.items[key]
             self.updateLinkedList(node)
