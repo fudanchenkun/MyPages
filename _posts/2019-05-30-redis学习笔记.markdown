@@ -7,24 +7,6 @@ categories: jekyll update
 
 
 
-
-# **Redis**
-
-问题
->- CAP，base
->- zookeeper满足了CAP的哪些特性，paxos
->- redis的io模型
->- 如果保证redis高可用
->- 线上cpu占比过高怎么排查
->- 一致性hash
->- 事件轮询（多路复用还不够清楚）
->- Redis的数据存储方式，操作方法，读写操作在底层都是如何实现。
->- NoSql，非关系型数据库
->- 存储
->- 存在缓存
-
-
-
 # 存储结构
 
 

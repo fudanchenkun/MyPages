@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ site.locale }}">
-  <head>
+<head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -14,38 +14,32 @@
     <![endif]-->
 
     <title> {{ page.title }} </title>
-  </head>
+</head>
 
-  <body>
-    <header>
-      <div class="inner">
+<body>
+<header>
+    <div class="inner">
         <h1> {{ site.name }} </h1>
         <h2>There are something good in the world and it's worth fighting for. Welcome to CK'Pages!</h2>
         <a href="https://github.com/fudanchenkun/MyPages" class="button"><small>View project on</small> GitHub</a>
-      </div>
-    </header>
+    </div>
+</header>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
+<div id="content-wrapper">
+    <div class="inner clearfix">
         <section id="main-content">
-          
-          {{ content }}
+
+            {{ content }}
 
         </section>
 
         <aside id="sidebar">
-          <h1>Blog Posts</h1>
-          <ul class="posts">
-            {% for post in site.posts %}
-            <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
-            {% endfor %}
-          </ul>
 
-          <p><a href="https://fudanchenkun.github.io/MyPages/">返回主页</a>.</p>
+            <!--<p><a href="https://fudanchenkun.github.io/MyPages/">返回主页</a>.</p>-->
 
         </aside>
-      </div>
     </div>
+</div>
 
-  </body>
+</body>
 </html>
