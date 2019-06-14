@@ -84,6 +84,7 @@ class SWSolution(object):
 ## 高效解法
 思路正确，一切都变得简单了。
 > 重复字符之间的字符串就是无重复的子串，只要用字典记录上一个重复字串的位置即可
+
 ```python
 class Solution:
     def lengthOfLongestSubstring(self, s):
