@@ -4,7 +4,7 @@
 ### index和shard
 
 > index -> type -> mapping -> document -> field
-
+ 
 ![image](872B9F4C235744A681D04DEBA4AFC889)
 
 定义好数据存储的在index上，每个index的数据会分布在多个shard上，每个shard会有备份。主shard称为primary shard，备份的shard称为replica shard。primary shard宕机时，会自动选出replica shard。
@@ -14,7 +14,6 @@
 ![image](FB5225B5BAB6437BAB587C190C264441)
 
 ![image](C618B02222A54FF5B9A980840B179A31)
-
 
 ### 游标会话
 ```python

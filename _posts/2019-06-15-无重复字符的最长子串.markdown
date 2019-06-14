@@ -1,0 +1,105 @@
+
+```
+输入: "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+```
+
+## 动态规划
+看到这题首先想到了动态规划
+- dp的状态是以第i个数为结尾的最长子串，dp[i] = 'xxxx'
+- 转移方程如下：
+```python
+if not nums[i] in dp[i-1]:
+    dp[i] = dp[i-1] + nums[i]
+else:
+    last_char_index = dp[i-1].index(nums[i])+1 # 重复字符出现的位置
+    dp[i] = dp[i-1][last_char_index:] + nums[i]
+```
+具体代码如下：
+```python
+class DPMapSolution(object):
+    def lengthOfLongestSubstring(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        length = len(s)
+        if length <= 1:
+            return length
+        dp = [{} for i in range(length)]
+        dp[0] = {s[0]:0}
+        i = 1
+        ans = 1
+        while i < length:
+            if not s[i] in dp[i-1]:
+                dp[i] = dp[i-1]
+                dp[i][s[i]] = i
+                if len(dp[i]) > ans:
+                    ans = len(dp[i])
+            else:
+                tmp = dp[i-1][s[i]]
+                for j in range(tmp+1, i+1):
+                    dp[i][s[j]] = j
+            i += 1
+        return ans
+```
+### 反思
+这个解法提交的时候，击败了50%~60%，而且因为要存储状态，内存占用也较高。不过有个发现，就是判断一个字符是否在字符串时（
+相当于判断list是否包含某个元素），python的内部实现并不是遍历对比的，直接用"in"判断比自己实现遍历要高效，具体怎么实现的还没不知道。
+
+## 滑动窗口
+刷题多的同学应该立马想到用滑动窗来做，只要维护左右指针，不停滑动窗口，记录最大值即可。
+```python
+class SWSolution(object):
+    def lengthOfLongestSubstring(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        length = len(s)
+        if length <= 1:
+            return length
+        left = 0
+        right = 0
+        ans = 1
+        i = 1
+        while i < length:
+            j = right
+            while j >= left:
+                if s[i] == s[j]:
+                    left = j + 1
+                    break
+                else:
+                    j -= 1
+            right = i
+            tmp = right - left + 1
+            ans = tmp if tmp > ans else ans
+            i += 1
+        return ans
+```
+不过事与愿违，这样的解法只降低了空间复杂度，时间复杂度反而大大增加，原因是每次滑动右指针都有可能遍历子字符串，
+时间复杂度是O(n2)。于是乎，想借助字典来记录重复子串的位置，但是收效甚微，因为重复的字符作为key，有很多index，还是要有一层遍历判断。
+
+## 高效解法
+思路正确，一切都变得简单了。
+> 重复字符之间的字符串就是无重复的子串，只要用字典记录上一个重复字串的位置即可
+```python
+class Solution:
+    def lengthOfLongestSubstring(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        st = {}
+        i, ans = 0, 0
+        for j in range(len(s)):
+            if s[j] in st:
+                i = max(st[s[j]], i)
+            ans = max(ans, j - i + 1)
+            st[s[j]] = j + 1
+        return ans
+```
+举重若轻，优秀。
+
+
