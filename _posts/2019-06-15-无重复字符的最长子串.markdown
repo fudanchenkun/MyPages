@@ -82,23 +82,24 @@ class SWSolution(object):
 时间复杂度是O(n2)。于是乎，想借助字典来记录重复子串的位置，但是收效甚微，因为重复的字符作为key，有很多index，还是要有一层遍历判断。
 
 ## 高效解法
-思路正确，一切都变得简单了。
-> 重复字符之间的字符串就是无重复的子串，只要用字典记录上一个重复字串的位置即可
+本质上还是滑动窗口，但是很机智地利用了字典记录上一个重复字符的位置，就可以判断重复位置是否在子串里面，从而避免了
+遍历子串。
 
 ```python
-class Solution:
+class Solution(object):
     def lengthOfLongestSubstring(self, s):
         """
         :type s: str
         :rtype: int
         """
-        st = {}
-        i, ans = 0, 0
-        for j in range(len(s)):
-            if s[j] in st:
-                i = max(st[s[j]], i)
-            ans = max(ans, j - i + 1)
-            st[s[j]] = j + 1
+        m = {} # m字典记录最近的重复字符出现的位置
+        start, ans = 0, 0 # start记录子串的起始位置
+        for i in range(len(s)):
+            if s[i] in m:
+                # 关键逻辑：重复字符最近的位置如果出现在子串里面，则从此处截断子串，即start指向该位置
+                start = max(start, m[s[i]]+1) 
+            ans = max(ans, i - start + 1)
+            m[s[i]] = i
         return ans
 ```
 举重若轻，优秀。
