@@ -1,0 +1,67 @@
+给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+示例:
+```css
+输入: [-2,1,-3,4,-1,2,1,-5,4],
+输出: 6
+解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
+```
+
+### DP解法
+这题用dp的思路解难点在于，dp的状态是子数组的子序列最大和，dp[i]和dp[i-1]之间的关联不明显，即状态转移方程不好确定。
+
+但仔细分析发现，如果nums[i]小于等于0，dp[i]值就是是dp[i-1]；否则，dp[i]就是以i为结束的子序列最大值和dp[i-1]的最大值。
+
+此时，还缺的就是以i为结束的子序列最大值，要得到这个，立马又想到DP，这个用DP非常直接。
+
+所以写出了，一个用两次DP的解法，也是O(n)
+```python
+class Solution(object):
+    def maxSubArray(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        length = len(nums)
+        dp = [0] * length
+        dp[0] = nums[0]
+        # 第一个dp，记录以i为结束的子序列最大值
+        for i in range(1, length):
+            if dp[i-1] > 0:
+                dp[i] = dp[i-1] + nums[i]
+            else:
+                dp[i] = nums[i]
+        # 第二个dp
+        dp2 = [0] * length
+        dp2[0] = nums[0]
+        for i in range(1, length):
+            dp2[i] = max(dp2[i-1], dp[i])
+        return max(dp2)
+```
+
+这个解法效率不错，达到75%，但总感觉怪怪的。后来，看到了标准解法，只用了一次遍历
+```java
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int res = nums[0];
+        int sum = 0;
+        for (int num : nums) {
+            if (sum > 0)
+                sum += num;
+            else
+                sum = num;
+            res = Math.max(res, sum);
+        }
+        return res;
+    }
+}
+```
+
+从代码上看，这个solution把我的两个dp遍历合并起来了。
+
+然后分析了下原因，我的第一个dp和他的sum都是记录以当前节点为结束位置的子序列的最大值，我的角度是以当前
+节点往前推（即找上一个状态），他的角度是找到起始点累加（判断当前节点之前的和是否大于0，如果小于0则对于结果无益）。
+这个思维有点跳。两个解法其他都一样。
+
+
+
