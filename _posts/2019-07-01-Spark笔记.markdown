@@ -89,6 +89,7 @@ val runningCounts = pairs.updateStateByKey[Int](updateFunction _)
 
 - 需要有一个持久化的目录
 - 再从这个目录中生成StreamingContext
+
 ```scala
 def functionToCreateContext(): StreamingContext = {
   val ssc = new StreamingContext(...)   // new context
@@ -109,6 +110,7 @@ context. ...
 context.start()
 context.awaitTermination()
 ```
+
 这个例子持久化目录存在，则从目录恢复，没有则重新创建一个ssc
 
 #### 项目实例
@@ -172,6 +174,7 @@ Task只分ShuffleMapTask和ResultTask，入口ShuffleMapTask的runTask方法
 - groupByKey比较耗费资源
 - groupByKey是将key相同的元素聚合在一起（（a,1）,(a,2)）),((b,1),(b,2),(b,3))
 - 如下效果是一致的，但reduceByKey会在**每个分区**先进行求和，而groupByKey会先把所有元素聚合再一起求和
+
 ```scala
 reduceByKey（\_+\_）
 
