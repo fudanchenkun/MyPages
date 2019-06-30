@@ -176,9 +176,9 @@ Task只分ShuffleMapTask和ResultTask，入口ShuffleMapTask的runTask方法
 - 如下效果是一致的，但reduceByKey会在**每个分区**先进行求和，而groupByKey会先把所有元素聚合再一起求和
 
 ```scala
-reduceByKey（\_+\_）
+reduceByKey(_+_)
 
-groupByKey（）.map(t => (t.\_1, t._2.sum))
+groupByKey().map(t => (t._1, t._2.sum))
 ```
 
 **其他要点**
