@@ -1,0 +1,71 @@
+发布订阅消息系统
+
+## 基础架构
+
+- topic 不同内容的数据
+- group
+    - 当同一数据需要多种处理逻辑的时候就要有多个groupid
+    - 是topic子概念，就是说不同的topic下的相同groupID没有任何关系。
+- partition
+    - 每个partition仅能有一个consumer消费    
+    - 每个topic只保证partition内的数据是有序的，并不全局有序
+- log记录
+    - 每个partition都有个log，记录offset和数据真实的存放位置
+
+![image](FB8786EDA01E4A22883BA4747964A803)
+
+## 相关问题
+
+### 为什么高吞吐量？
+- 直接使用linux的cache来高速缓存
+- 每个partition在一个group内只有一个消费者，不需要竞争锁
+
+### 同一groupID下的consumer如何知道该消费topic下哪个分区的数据？
+当一个消费者离开group，或者新增消费者，或者topic新增分区，那么需要Rebalance
+分区分配策略（Partition AssignMent Strategy）
+- Range
+分区数除以总线程数（num.stream的总数？），依次分给对应consumer，如果除不尽，则第一个会多分担
+- RoundRobin
+分区取hash，按hashcode排序，消费者线程也排序， 再分给对应消费者线程。
+
+## kafka角色 发布订阅消息系统
+Topic由Record组成，分成几个Partition，由生产者生产、消费者消费
+### Broker就是服务器。
+可以备份partition到不同的broker上
+![image](A5AEF12003F94B6DA8B3834A9BF8ABAE)
+
+### 优点：
+1、直接使用linux的cache来高效缓存。
+2、topic->parition->segment，kafka为每个topic维护一个log，log是分区的，记录每条数据的offset
+3、需要zookeeper来为broker传递offset等数据。
+
+### kafka消息体 kafka的message包括哪些信息
+一个Kafka的Message由一个固定长度的header和一个变长的消息体body组成header部分由一个字节的magic(文件格式)和四个字节的CRC32(用于判断body消息体是否正常)构成。当magic的值为1的时候，会在magic和crc32之间多一个字节的数据：attributes(保存一些相关属性，比如是否压缩、压缩格式等等)；如果magic的值为0，那么不存在attributes属性
+body是由N个字节构成的一个消息体，包含了具体的key/value消息。
+
+卡夫卡的消费者会启动一个或者多个streams去消费分区
+
+### topic
+每个partition只能同一个groupID的同一个consumer消费，在151中大多数情况都是一个groupID一个consumer
+### producer
+每个数据通过key的hash取余num.partition 确定写到哪个partition
+
+### partition和consumer的关系
+- 一个partition只能由同一partition中一个consumer消费，
+- 如果partition数量小于consumer的数量，那么多余的consumer空闲；
+- 如果partition数量大于consumer的数量，那么有的consumer可以消费多个partition。
+- 一个consumer都是消费完一个partition再消费另一个。
+- producer会根据key的hash值来存在哪个parition，或者轮询确定。
+
+### 手动提交 enable_auto_commit=false
+- 手动提交是指告诉其他相同group_id的consumer offset到哪里了。
+- 手动提交的方法是consumer.commit_sync(),确保客户端接受到了数据再更改相关gourp的offset
+
+### Acks
+
+#### 和消费者通信，就是auto commit，包括3种；
+- 自动提交：可以设置ack大小
+- 异步手动提交：低延迟
+- 同步手动提交：直到等到提交完成都阻塞
+
+#### broker之间的通信
