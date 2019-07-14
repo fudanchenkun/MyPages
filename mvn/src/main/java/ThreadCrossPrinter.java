@@ -1,4 +1,4 @@
-import sun.font.TrueTypeFont;
+import tools.SleepUnit;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,16 +13,16 @@ public class ThreadCrossPrinter {
     static AtomicBoolean atomicOver = new AtomicBoolean(false);
 
     public static void main(String[] args) {
-        char[] s1 = "abcef".toCharArray();
-        char[] s2 = "123456789".toCharArray();
+        char[] s1 = "abcefdfasdfasdfasdfsa".toCharArray();
+        char[] s2 = "123456789fdasddfdasdfasdfasdfas".toCharArray();
 
-        Thread printabc = new Thread(new AtomicPrinter(s1), s1.toString());
-        Thread print123 = new Thread(new AtomicPrinter(s2), s2.toString());
+//        Thread printabc = new Thread(new AtomicPrinter(s1), s1.toString());
+//        Thread print123 = new Thread(new AtomicPrinter(s2), s2.toString());
 
-//        Thread printabc = new Thread(new Printer(s1), "print chars");
+        Thread printabc = new Thread(new Printer(s1), "print chars");
         printabc.start();
 //
-//        Thread print123 = new Thread(new Printer(s2), "print nums");
+        Thread print123 = new Thread(new Printer(s2), "print nums");
         print123.start();
     }
 
@@ -37,6 +37,7 @@ public class ThreadCrossPrinter {
                     int tmp = count/2;
                     try{
                         System.out.println(s[tmp]);
+                        SleepUnit.SECOND.sleep(2);
                         if (over)
                             count += 2;
                         else
