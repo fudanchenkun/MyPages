@@ -23,7 +23,7 @@ class Solution(object):
             head = l2
             l2 = l2.next
         p = head
-        p.head = None
+        p.next = None
         while l1 and l2:
             if l1.val < l2.val:
                 p.next = l1

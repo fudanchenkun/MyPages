@@ -42,11 +42,12 @@ public class ThreadCrossPrinter {
                             count += 2;
                         else
                             count++;
-                        lock.notify();
+
                         if (tmp == (s.length - 1)){
                             over = true;
                             break;
                         }
+                        lock.notify();
                         if(!over)
                             lock.wait(); // wait需要捕获InterruptedException异常
                     } catch (InterruptedException e){
