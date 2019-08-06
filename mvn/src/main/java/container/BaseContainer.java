@@ -23,5 +23,42 @@ public class BaseContainer<T> {
         Integer i4= new Integer(10);
         System.out.println(i3==i4);
         System.out.println(i3.equals(i4));
+
+
+        String num = "jiada";
+        num.length();
+        System.out.println(num.length());
+
+        char c = '1';
+        int n = 1;
+        char copy = (char)n;
+
+        char[] ca = new char[]{'1', '2', '3'};
+
+        System.out.println(String.valueOf(ca));
+        System.out.println((char)48);
+
+
+        Map<String, Integer> map = new HashMap<>(){
+            {
+                put("I", 1);
+                put("IV", 3);
+                put("IX", 8);
+                put("V", 5);
+                put("X", 10);
+                put("XL", 30);
+                put("XC", 80);
+                put("L", 50);
+                put("C", 100);
+                put("CD", 300);
+                put("CM", 800);
+                put("D", 500);
+                put("M", 1000);
+            }
+        };
+        System.out.println(Integer.MAX_VALUE);
+        int[] t = new int[]{1,2,3};
+
+
     }
 }

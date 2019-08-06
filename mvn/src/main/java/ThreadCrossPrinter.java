@@ -15,15 +15,18 @@ public class ThreadCrossPrinter {
     public static void main(String[] args) {
         char[] s1 = "abcefdfasdfasdfasdfsa".toCharArray();
         char[] s2 = "123456789fdasddfdasdfasdfasdfas".toCharArray();
+        while (true){
+        Thread printabc = new Thread(new AtomicPrinter(s1), s1.toString());
+        Thread print123 = new Thread(new AtomicPrinter(s2), s2.toString());
 
-//        Thread printabc = new Thread(new AtomicPrinter(s1), s1.toString());
-//        Thread print123 = new Thread(new AtomicPrinter(s2), s2.toString());
-
-        Thread printabc = new Thread(new Printer(s1), "print chars");
-        printabc.start();
+//            Thread printabc = new Thread(new Printer(s1), "print chars");
+            printabc.start();
 //
-        Thread print123 = new Thread(new Printer(s2), "print nums");
-        print123.start();
+//            Thread print123 = new Thread(new Printer(s2), "print nums");
+            print123.start();
+            SleepUnit.SECOND.sleep(1);
+        }
+
     }
 
     static class Printer implements Runnable {

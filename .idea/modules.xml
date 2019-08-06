@@ -8,6 +8,7 @@
       <module fileurl="file://$PROJECT_DIR$/baseJava/baseJava.iml" filepath="$PROJECT_DIR$/baseJava/baseJava.iml" />
       <module fileurl="file://$PROJECT_DIR$/leetcode-note/leetcode-note.iml" filepath="$PROJECT_DIR$/leetcode-note/leetcode-note.iml" />
       <module fileurl="file://$PROJECT_DIR$/mvn/mvn.iml" filepath="$PROJECT_DIR$/mvn/mvn.iml" />
+      <module fileurl="file://$PROJECT_DIR$/scala-test/scala-test.iml" filepath="$PROJECT_DIR$/scala-test/scala-test.iml" />
     </modules>
   </component>
 </project>

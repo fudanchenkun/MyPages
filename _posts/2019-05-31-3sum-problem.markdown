@@ -75,52 +75,42 @@ first后第一个数，right指向数组最后一个数，然后根据sum和targ
 
 代码如下
 ```python
-"""
-判断nums[c]最小的数 因此后面的累加和一定大于4 * nums[c]
-要充分利用有序数列的特点，写出不等式，搜小范围
-"""
-
 class Solution(object):
-    def fourSum(self, nums, target):
+    def threeSum(self, nums):
         """
         :type nums: List[int]
         :rtype: List[List[int]]
         """
+        target = 0
         nums.sort()
-        c = 0
-        nums_len = len(nums)
-        if len(nums) <=3:
+        if len(nums) <=2:
             return []
-        if len(nums) == 4:
+        if len(nums) == 3:
             return [nums] if sum(nums) == target else []
         triplets=[]
-        while c < nums_len - 3 and nums[c] <= (target/4): #
-            i = c + 1
-            target_3 = target - nums[c]
-            while i < nums_len - 2 and nums[i] <= (target_3/3): #
-                left = i + 1
-                right = nums_len - 1
-                while left < right:
-                    diff = nums[i] + nums[left] + nums[right] - target_3
-                    # print nums[c], nums[i], nums[left], nums[right]
-                    if diff == 0:
-                        triplets.append([nums[c], nums[i], nums[left], nums[right]])
+        nums_len = len(nums)        
+        i = 0
+        while i < nums_len - 2 and nums[i] <= target:
+            left = i + 1
+            right = nums_len - 1                        
+            while left < right:
+                diff = nums[i] + nums[left] + nums[right] - target
+                # print nums[i], nums[left], nums[right] 
+                if diff == 0:
+                    triplets.append([nums[i], nums[left], nums[right]])
+                    left += 1
+                    while left < right and nums[left] == nums[left-1]:
                         left += 1
-                        while left < right and nums[left] == nums[left-1]: #去重
-                            left += 1
+                    right -= 1
+                    while left < right and nums[right] == nums[right+1]:
                         right -= 1
-                        while left < right and nums[right] == nums[right+1]: #去重
-                            right -= 1
-                    elif diff < 0:
-                        left += 1
-                    else:
-                        right -= 1
+                elif diff < 0:
+                    left += 1
+                else:
+                    right -= 1    
+            i += 1
+            while i < nums_len and nums[i-1] == nums[i]:
                 i += 1
-                while i < nums_len and nums[i-1] == nums[i]: #去重
-                    i += 1
-            c += 1
-            while c < nums_len and nums[c-1] == nums[c]:
-                c += 1
         return triplets
 ```
 

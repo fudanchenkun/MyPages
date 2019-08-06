@@ -37,7 +37,8 @@ class LRUCache(object):
         while tmp:
             ans += str(tmp.key)
             tmp = tmp.next
-        print ans
+        print(ans)
+
     def get(self, key):
         """
         :type key: int
